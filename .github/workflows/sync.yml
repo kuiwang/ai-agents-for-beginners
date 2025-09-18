@@ -86,9 +86,7 @@ jobs:
       - name: Prepare GitCode sync
         run: |
           # 清理可能存在的残留目录
-          if [ -d "ai-agents-for-beginners.git" ]; then
-            rm -rf ai-agents-for-beginners.git
-          fi
+          rm -rf /github/workspace/ai-agents-for-beginners.git || true  # 强制删除，即使目录不存在也不报错
           
           # 解决安全目录问题
           git config --global --add safe.directory /github/workspace
