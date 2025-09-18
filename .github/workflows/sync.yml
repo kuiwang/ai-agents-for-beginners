@@ -83,6 +83,16 @@ jobs:
           # 目标仓库地址（Gitee）
           destination-repo: "git@gitee.com:alifred/ai-agents-for-beginners.git"
 
+      - name: Prepare GitCode sync
+        run: |
+          # 清理可能存在的残留目录
+          if [ -d "ai-agents-for-beginners.git" ]; then
+            rm -rf ai-agents-for-beginners.git
+          fi
+          
+          # 解决安全目录问题
+          git config --global --add safe.directory /github/workspace
+    
       # 第三步：同步到GitCode（如果需要）
       - name: Sync to GitCode
         uses: wearerequired/git-mirror-action@v1
