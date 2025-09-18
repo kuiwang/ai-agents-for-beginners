@@ -85,29 +85,28 @@ jobs:
 
       - name: Prepare GitCode sync
         run: |
-          # 清理可能存在的残留目录
-          #rm -rf /github/workspace/ai-agents-for-beginners.git || true  # 强制删除，即使目录不存在也不报错
+          rm -rf /github/workspace/ai-agents-for-beginners.git || true
+          rm -rf /tmp/git-mirror-action/* || true
           
-          # 解决安全目录问题
-          #git config --global --add safe.directory /github/workspace
-          # 清理工作区所有可能的残留文件
-          rm -rf /github/workspace/* || true
-          
-          # 确保安全目录设置生效
+          # 解决安全目录问题，添加所有可能的路径
           git config --global --add safe.directory /github/workspace
-          # 额外设置仓库目录权限
           git config --global --add safe.directory /github/workspace/ai-agents-for-beginners.git
+          git config --global --add safe.directory /tmp/git-mirror-action
+          
+          # 添加GitCode仓库为远程仓库（如果尚未添加），假设远程名称叫gitcode
+          git remote add gitcode "git@gitcode.com:alifred/ai-agents-for-beginners.git" || true  # 如果已添加则忽略错误
+          
+          # 然后进行强制推送（mirror模式会覆盖远程引用和对象）
+          git push --mirror gitcode  # 使用--mirror而非简单push，这会更强制地同步所有引用（分支、标签等）
     
       # 第三步：同步到GitCode（如果需要）
-      - name: Sync to GitCode
-        uses: wearerequired/git-mirror-action@v1
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.GITCODE_SSH_KEY }}
-        with:
-          source-repo: "git@github.com:kuiwang/ai-agents-for-beginners.git"
-          destination-repo: "git@gitcode.com:alifred/ai-agents-for-beginners.git"
-          # 指定工作目录为一个新的临时目录
-          workdir: /tmp/gitcode-sync
+      #- name: Sync to GitCode
+      #  uses: wearerequired/git-mirror-action@v1
+      #  env:
+      #    SSH_PRIVATE_KEY: ${{ secrets.GITCODE_SSH_KEY }}
+      #  with:
+      #    source-repo: "git@github.com:kuiwang/ai-agents-for-beginners.git"
+      #    destination-repo: "git@gitcode.com:alifred/ai-agents-for-beginners.git"
 
       # 第四步：同步标签（可选）
       - name: Sync tags to all remotes
